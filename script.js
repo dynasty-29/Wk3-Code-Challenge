@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', ()=>{
 
     //i need my url to be the data base in repo
-    const baseurl = "https://dynasty-29.github.io/Wk3-Code-Challenge/data.json";
+    const baseurl = "http://localhost:3000/films";
     //lets begin with fetching our data from he data base
     fetch(baseurl)
     //parse json
