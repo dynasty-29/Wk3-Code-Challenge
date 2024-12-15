@@ -1,0 +1,56 @@
+/* I learnt on using google fonts so will import that
+and since we talking about film i will use creative ones */
+@import url('https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Nabla&display=swap');
+body {
+    font-family: "Nabla", system-ui;
+    font-optical-sizing: auto;
+    font-size: xx-large;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0;
+    padding: 20px;
+    background-color: rgb(1, 49, 49);
+  }
+  
+#container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 50px;
+}
+
+#film-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 20px; 
+    width: 90%;
+    max-width: 800px; 
+    margin: 0 auto;
+}
+  
+.film-card {
+    border: 1px solid #450505;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    background-color: #05e13c;
+    box-shadow: 0 2px 4px rgba(4, 196, 244, 0.1);
+}
+
+.film-card img {
+    width: 100%;
+    height: 80;
+    display: block;
+}
+
+.film-card h3 {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    color: #0e55e5;
+}
+
+.film-card p {
+    font-size: medium;
+    color: #e00606;
+    margin: 10px;
+}
