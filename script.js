@@ -1,3 +1,6 @@
+import db from './data.json';
+console.log(db);
+
 document.addEventListener('DOMContentLoaded', () => {
 
     //i need my url to be the data base in repo
