@@ -54,3 +54,16 @@ body {
     color: #e00606;
     margin: 10px;
 }
+.delete-button {
+    margin-left: 10px;
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.delete-button:hover {
+    background-color: darkred;
+}

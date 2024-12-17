@@ -1,4 +1,4 @@
-const DATA_URL = "./data.json";
+const DATA_URL = "https://dynasty-29.github.io/Wk3-Code-Challenge/data.json";
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,7 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const filmItem = document.createElement('li');
                 //this list element needs its metadat so we add it
                 filmItem.classList.add('film', 'item');
+                filmItem.setAttribute('data-id', film.id);
                 filmItem.innerText = film.title;
+
+                // Attach the delete button to the list item
+                const deleteButton = createDeleteButton(film);
+                filmItem.appendChild(deleteButton);
                 //finally for it to be usable we attach it to its parent html element
                 filmsList.appendChild(filmItem);
 
@@ -68,10 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
         //we want to implement the PATCH method but we have to check that avalable tickets are 
         // more than 0 so that we can update to the new value with the help of PATCH
         if (availableTickets > 0) {
-            film.tickets_sold += 1;
+            
 
             //as usual we fetch wit our film url          
-            fetch(`DATA_URL/${film.id}`, {
+            fetch(`${DATA_URL}/${film.id}`, {
                 //verb w eusing is now PATCH, and since it need id we have added it the url as show in previous line
                 method: 'PATCH',
                 //contnue with all requirements a header and the body
@@ -88,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     //will use two functions the later i will add its functionality below for better code readability
                     //the first renders the updated details of the film details, its functionality we started with
                     //helps diplays film details
+                    film.tickets_sold += 1;
                     displayFilmDetails(updatedFilm);
                     //this one now updates the film list
                     updateFilmInList(updatedFilm);
@@ -117,27 +123,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // // we want to have a dlete button so we create it
+    // we want to have a dlete button so we create it
     function createDeleteButton(film) {
-        //its a button element so we create it
         const deleteButton = document.createElement('button');
-    //     //its metadata should show delete
         deleteButton.innerText = 'Delete';
-    //     //should be actived on click so we add event listener
-        deleteButton.addEventListener('click', () => deleteFilm(film));
+        deleteButton.classList.add('delete-button'); // Add a class for styling
+    
+        // Add event listener to delete the film
+        deleteButton.addEventListener('click', (event) => {
+            // Prevent click from bubbling up to parent elements
+            event.stopPropagation(); 
+            deleteFilm(film);
+        });
+    
         return deleteButton;
     }
-
     //with button working now we actualy send a request to data base to actually delete it
     //meaning the verb will use in our fetch will be delete
     //DELETE requires id so have to have it in the url
     function deleteFilm(film) {
-        fetch(`DATA_URL/${film.id}`, {
+        fetch(`${DATA_URL}/${film.id}`, { 
             method: 'DELETE'
         })
-            .then(() => {
-                const filmItem = document.querySelector(`li[data-id="${film.id}"]`);
-                filmItem.remove();
-            });
+        .then(() => {
+            // Select the film item using data-id
+            const filmItem = document.querySelector(`li[data-id="${film.id}"]`);
+            if (filmItem) {
+                // Remove the element from the DOM
+                filmItem.remove(); 
+                alert(`${film.title} has been deleted.`);
+            }
+        })
+        .catch(error => console.error('Error deleting film:', error));
     }
+    
 })
