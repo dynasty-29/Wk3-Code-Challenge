@@ -1,12 +1,12 @@
-import db from './data.json';
-console.log(db);
+const DATA_URL = "./data.json";
+
 
 document.addEventListener('DOMContentLoaded', () => {
 
     //i need my url to be the data base in repo
-    const baseurl = "http://localhost:3000/films";
+    // const baseurl = "http://localhost:3000/films";
     //lets begin with fetching our data from he data base
-    fetch('http://localhost:3000/films')
+    fetch(DATA_URL)
         //parse json
         .then(response => response.json())
         //now used parse json to output our data
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             film.tickets_sold += 1;
 
             //as usual we fetch wit our film url          
-            fetch(`http://localhost:3000/films/${film.id}`, {
+            fetch(`DATA_URL/${film.id}`, {
                 //verb w eusing is now PATCH, and since it need id we have added it the url as show in previous line
                 method: 'PATCH',
                 //contnue with all requirements a header and the body
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //meaning the verb will use in our fetch will be delete
     //DELETE requires id so have to have it in the url
     function deleteFilm(film) {
-        fetch(`http://localhost:3000/films/${film.id}`, {
+        fetch(`DATA_URL/${film.id}`, {
             method: 'DELETE'
         })
             .then(() => {
