@@ -8,13 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     //lets begin with fetching our data from he data base
     fetch(DATA_URL)
         //parse json
-        .then(response => response.json())
+        .then(res => res.json())
         //now used parse json to output our data
         .then(data => {
             //will be storing all this data in out element with id films so we get it
             const filmsList = document.getElementById('films');
+            const data_ = data?.films ?? [];
             //now we go over each film and store it in list
-            data.forEach(film => {
+            data_.forEach(film => {
                 // since we don't have a list html element we create it
                 const filmItem = document.createElement('li');
                 //this list element needs its metadat so we add it
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ tickets_sold: film.tickets_sold })
             })
                 //first the parse the json 
-                .then(response => response.json())
+                .then(res => res.json())
                 //second part woll give us the updated data
                 .then(updatedFilm => {
 
@@ -130,9 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteButton.classList.add('delete-button'); // Add a class for styling
     
         // Add event listener to delete the film
-        deleteButton.addEventListener('click', (event) => {
+        deleteButton.addEventListener('click', (e) => {
             // Prevent click from bubbling up to parent elements
-            event.stopPropagation(); 
+            e.stopPropagation(); 
             deleteFilm(film);
         });
     
