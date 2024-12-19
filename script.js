@@ -34,8 +34,115 @@ document.addEventListener('DOMContentLoaded', () => {
                 filmItem.addEventListener('click', () => displayFilmDetails(film));
             });
         });
+    //Making it possible for user to buy these tickets
+    //so the function for buy ticket being activated above we put its functionality here
+    function buyTicket(film) {
+
+        //now for getting our calculations
+        const availableTickets = film.capacity - film.tickets_sold;
+        //we want to implement the PATCH method but we have to check that avalable tickets are 
+        // more than 0 so that we can update to the new value with the help of PATCH
+        if (availableTickets > 0) {
+            film.tickets_sold += 1;
+
+            displayFilmDetails(film);
+            //this one now updates the film list
+            updateFilmInList(film);
 
 
+            //as usual we fetch wit our film url          
+            fetch(`${DATA_URL}/${film.id}`, {
+                //verb w eusing is now PATCH, and since it need id we have added it the url as show in previous line
+                method: 'PATCH',
+                //contnue with all requirements a header and the body
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tickets_sold: film.tickets_sold })
+            })
+                //first the parse the json 
+                .then((res) => {
+                    if (!res.ok) throw new Error('Failed to update ticket sales');
+                    return res.json();
+                })
+                // //second part woll give us the updated data
+                .then(updatedFilm => {
+
+                    //will use two functions the later i will add its functionality below for better code readability
+                    //the first renders the updated details of the film details, its functionality we started with
+                    //helps diplays film details
+                    film.tickets_sold = updatedFilm.tickets_sold;
+                    // //this one now updates the film list
+                    updateFilmInList(film);
+                })
+                .catch(error => console.error('Error updating ticket sales:', error));
+        }//but if they tickets are out we need to notify our dear user
+        else {
+            alert('Apologies! No more tickets available!');
+        }
+    }
+    // Function to reset tickets for a specific film
+    function resetTickets(film) {
+        // Update tickets_sold locally
+        film.tickets_sold = 0;
+
+        // Update UI
+        displayFilmDetails(film);
+        updateFilmInList(film);
+        fetch(`${DATA_URL}/${film.id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ tickets_sold: 0 }) // Reset tickets_sold to 0
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error(`Failed to reset tickets for film ID`);
+                return res.json()
+            })
+            .then((updatedFilm) => {
+                film.tickets_sold = updatedFilm.tickets_sold;
+                updateFilmInList(film);
+            })
+            // .then(res => res.json())
+            // .then(updatedFilm => {
+            //     film.tickets_sold = 0; // Update the local data
+            //     displayFilmDetails(updatedFilm); // Refresh film details
+            //     updateFilmInList(updatedFilm); // Update the list display
+            //     alert(`Tickets for ${film.title} have been reset.`);
+            // })
+            .catch(error => console.error('Error resetting tickets:', error));
+
+
+    }
+
+    //awesome so far working properly
+
+    //this function we called it above it helps update the film list once patch requested is rendered
+    function updateFilmInList(film) {
+        //this list will be of all elements with attribute films li
+        //this is from the list we created above
+        const filmItems = document.querySelectorAll('#films li');
+
+        //the for each to iterate over every item in the list
+        //it updates them to show sold-out 
+        filmItems.forEach(item => {
+            if (item.getAttribute('data-id') === String(film.id)) {
+                const availableTickets = film.capacity - film.tickets_sold;
+                // if (film.capacity - film.tickets_sold === 0) {
+                //     item.classList.add('sold-out');
+                //     item.innerText = `${film.title} (Sold Out)`;
+                // }
+                if (availableTickets === 0) {
+                    item.classList.add('sold-out');
+                    item.innerText = `${film.title} (Sold Out)`;
+                } else {
+                    item.classList.remove('sold-out');
+                    item.innerText = film.title;
+                }
+            }
+        });
+    }
     //Making it possible to diplay films
     ///for this functionality to actually work we now implement the function particulars here
     //this function will help in diplaying films details once we are able to fetch them as we did above
@@ -70,99 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
             resetButton.addEventListener('click', () => resetTickets(film));
         }
     }
-
-    //Making it possible for user to buy these tickets
-    //so the function for buy ticket being activated above we put its functionality here
-    function buyTicket(film) {
-
-        //now for getting our calculations
-        const availableTickets = film.capacity - film.tickets_sold;
-        //we want to implement the PATCH method but we have to check that avalable tickets are 
-        // more than 0 so that we can update to the new value with the help of PATCH
-        if (availableTickets > 0) {
-            film.tickets_sold += 1;
-
-            displayFilmDetails(film);
-            //this one now updates the film list
-            updateFilmInList(film);
-            
-
-            //as usual we fetch wit our film url          
-            fetch(`${DATA_URL}/${film.id}`, {
-                //verb w eusing is now PATCH, and since it need id we have added it the url as show in previous line
-                method: 'PATCH',
-                //contnue with all requirements a header and the body
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ tickets_sold: film.tickets_sold })
-            })
-                //first the parse the json 
-                // .then(res => res.json())
-                // //second part woll give us the updated data
-                // .then(updatedFilm => {
-
-                    //will use two functions the later i will add its functionality below for better code readability
-                    //the first renders the updated details of the film details, its functionality we started with
-                    //helps diplays film details
-                    // film.tickets_sold += 1;
-                    // displayFilmDetails(updatedFilm);
-                    // //this one now updates the film list
-                    // updateFilmInList(updatedFilm);
-                // })
-            .catch(error => console.error('Error updating ticket sales:', error));
-        }//but if they tickets are out we need to notify our dear user
-        else {
-            alert('Apologies! No more tickets available!');
-        }
-    }
-    //awesome so far working properly
-
-    //this function we called it above it helps update the film list once patch requested is rendered
-    function updateFilmInList(film) {
-        //this list will be of all elements with attribute films li
-        //this is from the list we created above
-        const filmItems = document.querySelectorAll('#films li');
-
-        //the for each to iterate over every item in the list
-        //it updates them to show sold-out 
-        filmItems.forEach(item => {
-            if (item.getAttribute('data-id') === String(film.id)) {
-                if (film.capacity - film.tickets_sold === 0) {
-                    item.classList.add('sold-out');
-                    item.innerText = `${film.title} (Sold Out)`;
-                }
-            }
-        });
-    }
-
-    // Function to reset tickets for a specific film
-    function resetTickets(film) {
-            // Update tickets_sold locally
-        film.tickets_sold = 0;
-
-        // Update UI
-        displayFilmDetails(film);
-        updateFilmInList(film);
-        fetch(`${DATA_URL}/${film.id}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ tickets_sold: 0 }) // Reset tickets_sold to 0
-        })
-        // .then(res => res.json())
-        // .then(updatedFilm => {
-        //     film.tickets_sold = 0; // Update the local data
-        //     displayFilmDetails(updatedFilm); // Refresh film details
-        //     updateFilmInList(updatedFilm); // Update the list display
-        //     alert(`Tickets for ${film.title} have been reset.`);
-        // })
-        .catch(error => console.error('Error resetting tickets:', error));
-
-        alert(`Tickets for ${film.title} have been reset.`);
-    }
-
     // Create a Reset button for each film
     function createResetButton(film) {
         const resetButton = document.createElement('button');
@@ -184,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
         filmItem.setAttribute('data-id', film.id);
         filmItem.innerText = film.title;
 
-        // Attach the delete and reset buttons
+        // Attach buttons
         const deleteButton = createDeleteButton(film);
         const resetButton = createResetButton(film);
 
@@ -196,38 +210,39 @@ document.addEventListener('DOMContentLoaded', () => {
         filmItem.addEventListener('click', () => displayFilmDetails(film));
     });
 
+
     // we want to have a dlete button so we create it
     function createDeleteButton(film) {
         const deleteButton = document.createElement('button');
         deleteButton.innerText = 'Delete';
         deleteButton.classList.add('delete-button'); // Add a class for styling
-    
+
         // Add event listener to delete the film
         deleteButton.addEventListener('click', (e) => {
             // Prevent click from bubbling up to parent elements
-            e.stopPropagation(); 
+            e.stopPropagation();
             deleteFilm(film);
         });
-    
+
         return deleteButton;
     }
     //with button working now we actualy send a request to data base to actually delete it
     //meaning the verb will use in our fetch will be delete
     //DELETE requires id so have to have it in the url
     function deleteFilm(film) {
-        fetch(`${DATA_URL}/${film.id}`, { 
+        fetch(`${DATA_URL}/${film.id}`, {
             method: 'DELETE'
         })
-        .then(() => {
-            // Select the film item using data-id
-            const filmItem = document.querySelector(`li[data-id="${film.id}"]`);
-            if (filmItem) {
-                // Remove the element from the DOM
-                filmItem.remove(); 
-                alert(`${film.title} has been deleted.`);
-            }
-        })
-        .catch(error => console.error('Error deleting film:', error));
+            .then(() => {
+                // Select the film item using data-id
+                const filmItem = document.querySelector(`li[data-id="${film.id}"]`);
+                if (filmItem) {
+                    // Remove the element from the DOM
+                    filmItem.remove();
+                    alert(`${film.title} has been deleted.`);
+                }
+            })
+            .catch(error => console.error('Error deleting film:', error));
     }
-    
+
 })
