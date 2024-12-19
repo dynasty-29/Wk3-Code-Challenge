@@ -62,7 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
         //so we add event listener to buy ticket button will create after this, but will be activating ith here
         //to do this we need to get the element that has id of buy-ticket      
         const buyButton = document.getElementById('buy-ticket');
-        buyButton.addEventListener('click', () => buyTicket(film));
+        if (buyButton) {
+            buyButton.addEventListener('click', () => buyTicket(film));
+        }
+        const resetButton = document.getElementById('reset-tickets');
+        if (resetButton) {
+            resetButton.addEventListener('click', () => resetTickets(film));
+        }
     }
 
     //Making it possible for user to buy these tickets
@@ -74,6 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
         //we want to implement the PATCH method but we have to check that avalable tickets are 
         // more than 0 so that we can update to the new value with the help of PATCH
         if (availableTickets > 0) {
+            film.tickets_sold += 1;
+
+            displayFilmDetails(film);
+            //this one now updates the film list
+            updateFilmInList(film);
             
 
             //as usual we fetch wit our film url          
@@ -87,18 +98,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ tickets_sold: film.tickets_sold })
             })
                 //first the parse the json 
-                .then(res => res.json())
-                //second part woll give us the updated data
-                .then(updatedFilm => {
+                // .then(res => res.json())
+                // //second part woll give us the updated data
+                // .then(updatedFilm => {
 
                     //will use two functions the later i will add its functionality below for better code readability
                     //the first renders the updated details of the film details, its functionality we started with
                     //helps diplays film details
-                    film.tickets_sold += 1;
-                    displayFilmDetails(updatedFilm);
-                    //this one now updates the film list
-                    updateFilmInList(updatedFilm);
-                });
+                    // film.tickets_sold += 1;
+                    // displayFilmDetails(updatedFilm);
+                    // //this one now updates the film list
+                    // updateFilmInList(updatedFilm);
+                // })
+            .catch(error => console.error('Error updating ticket sales:', error));
         }//but if they tickets are out we need to notify our dear user
         else {
             alert('Apologies! No more tickets available!');
@@ -123,6 +135,66 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Function to reset tickets for a specific film
+    function resetTickets(film) {
+            // Update tickets_sold locally
+        film.tickets_sold = 0;
+
+        // Update UI
+        displayFilmDetails(film);
+        updateFilmInList(film);
+        fetch(`${DATA_URL}/${film.id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ tickets_sold: 0 }) // Reset tickets_sold to 0
+        })
+        // .then(res => res.json())
+        // .then(updatedFilm => {
+        //     film.tickets_sold = 0; // Update the local data
+        //     displayFilmDetails(updatedFilm); // Refresh film details
+        //     updateFilmInList(updatedFilm); // Update the list display
+        //     alert(`Tickets for ${film.title} have been reset.`);
+        // })
+        .catch(error => console.error('Error resetting tickets:', error));
+
+        alert(`Tickets for ${film.title} have been reset.`);
+    }
+
+    // Create a Reset button for each film
+    function createResetButton(film) {
+        const resetButton = document.createElement('button');
+        resetButton.innerText = 'Reset Tickets';
+        resetButton.classList.add('reset-button'); // Add a class for styling
+
+        resetButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent click from bubbling up
+            resetTickets(film);
+        });
+
+        return resetButton;
+    }
+
+    // Update the list creation to include Reset button
+    data_.forEach(film => {
+        const filmItem = document.createElement('li');
+        filmItem.classList.add('film', 'item');
+        filmItem.setAttribute('data-id', film.id);
+        filmItem.innerText = film.title;
+
+        // Attach the delete and reset buttons
+        const deleteButton = createDeleteButton(film);
+        const resetButton = createResetButton(film);
+
+        filmItem.appendChild(deleteButton);
+        filmItem.appendChild(resetButton);
+
+        filmsList.appendChild(filmItem);
+
+        filmItem.addEventListener('click', () => displayFilmDetails(film));
+    });
 
     // we want to have a dlete button so we create it
     function createDeleteButton(film) {
